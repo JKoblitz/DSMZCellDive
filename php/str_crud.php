@@ -47,7 +47,7 @@ if ($action == 'edit-meta') {
         // cell_id might be updated
         if (is_numeric($_POST['ACC']) && $_POST['reference'] == '1') {
             // we need a new cell_id from the database
-            $stmt = $db->prepare("SELECT cell_id FROM celllines WHERE dsmz_acc = ?");
+            $stmt = $db->prepare("SELECT cell_id FROM celllines WHERE cell_id = ?");
             $stmt->execute([$_POST['ACC']]);
             $cell_id = $stmt->fetch(PDO::FETCH_COLUMN);
             if (empty($cell_id)) {
@@ -83,12 +83,14 @@ if ($action == 'edit-meta') {
         $stmt = $db->prepare("INSERT INTO str_profile (str_id, locus, allele, `value`, `value_str`) VALUES (?,?,?,?,?)");
         $stmt->execute([$str_id, $locus, $allele, $value, $value]);
     }
+    $db->exec('UPDATE str_meta LEFT JOIN (SELECT str_id, COUNT(*) as c from str_profile GROUP BY str_id) AS p USING (str_id) SET n_profile=c WHERE c IS NOT NULL');
+
     header("Location: " . ROOTPATH . "/str/edit/$str_id?msg=profile-updated");
     die();
 } elseif ($action == 'add') {
     $reference = $_POST['reference'] ?? '0';
     if ($reference == '1' && is_numeric($_POST['ACC'])) {
-        $stmt = $db->prepare("SELECT * FROM celllines WHERE dsmz_acc = ?");
+        $stmt = $db->prepare("SELECT cell_id FROM celllines WHERE cell_id = ?");
         $stmt->execute([$_POST['ACC']]);
         $cell_id = $stmt->fetch(PDO::FETCH_COLUMN);
     } 
@@ -110,6 +112,8 @@ if ($action == 'edit-meta') {
         $stmt = $db->prepare("INSERT INTO str_profile (str_id, locus, allele, `value`, `value_str`) VALUES (?,?,?,?,?)");
         $stmt->execute([$str_id, $locus, $allele, $value, $value]);
     }
+    $db->exec('UPDATE str_meta LEFT JOIN (SELECT str_id, COUNT(*) as c from str_profile GROUP BY str_id) AS p USING (str_id) SET n_profile=c WHERE c IS NOT NULL');
+  
     header("Location: " . ROOTPATH . "/str/edit/$str_id?msg=profile-added");
     die();
 } elseif ($action == 'delete') {

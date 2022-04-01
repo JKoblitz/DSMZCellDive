@@ -68,7 +68,7 @@ $genes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="content">
-<a href="<?= ROOTPATH ?>/documentation#genes" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+<a href="<?= ROOTPATH ?>/documentation#genes" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
     <h1><i class="fad fa-dna text-primary"></i> Genes</h1>
 
@@ -100,10 +100,14 @@ $genes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php sortbuttons("position"); ?>
                     </th> -->
                     <th>Strand</th>
-                    <th>Ensembl
+                    <th title="External link to the Ensembl database">
+                        <i class="fas fa-external-link"></i>
+                        Ensembl
                         <?php sortbuttons("ensembl"); ?>
                     </th>
-                    <th>Entrez
+                    <th title="External link to the Entrez database">
+                        <i class="fas fa-external-link"></i>
+                        Entrez
                         <?php sortbuttons("entrez"); ?>
                     </th>
                 </tr>
@@ -117,8 +121,15 @@ $genes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= $gene['chromosome_name'] ?></td>
                     <!-- <td><?= $gene['gene_start_position'] ?> - <?= $gene['gene_end_position'] ?></td> -->
                     <td><?= $gene['strand'] ?></td>
-                    <td><?= $gene['ensembl_gene_id'] ?></td>
-                    <td><?= $gene['entrez_gene_id'] ?></td>
+                    <td>
+                        <a href="https://ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=<?= $gene['ensembl_gene_id'] ?>" target="_blank" rel="noopener noreferrer">
+                        <?= $gene['ensembl_gene_id'] ?>
+                    </a>
+                    </td>
+                    <td>
+                        <a href="https://www.ncbi.nlm.nih.gov/gene/<?= $gene['entrez_gene_id'] ?>" target="_blank" rel="noopener noreferrer">
+                        <?= $gene['entrez_gene_id'] ?>
+                    </a></td>
                 </tr>
             <?php
             }

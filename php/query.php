@@ -1,6 +1,7 @@
 <?php
 
 include_once "_db.php";
+include_once "_config.php";
 
 $genes = $_POST['genes'] ?? 'CD47';
 $matrix = $_POST['matrix'] ?? 'norm';
@@ -96,6 +97,7 @@ $query->execute(array_map("trim", $values));
 $table = $query->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
 
 $result['data'] = $table;
+$result['colors'] = cellcolors();
 
 echo json_encode($result, JSON_NUMERIC_CHECK);
 

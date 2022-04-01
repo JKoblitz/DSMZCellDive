@@ -10,6 +10,7 @@ $proj_filter =  filter_var($_GET["project"] ?? '', FILTER_SANITIZE_STRING);
 $asc =  filter_var($_GET["asc"] ?? 1, FILTER_VALIDATE_INT);
 
 // 'asc'   => [FILTER_VALIDATE_INT, array('options' => array('default' => 1))],
+$colors = cellcolors();
 
 switch ($order) {
     case "name":
@@ -19,10 +20,10 @@ switch ($order) {
         $orderby = "tumour_short";
         break;
     case "acc":
-        $orderby = "dsmz_acc";
+        $orderby = "dsmz_acc IS NULL, dsmz_acc";
         break;
     default:
-        $orderby = "dsmz_acc";
+        $orderby = "dsmz_acc IS NULL, dsmz_acc";
         break;
 }
 $orderby .= $asc == 1 ? " ASC" : " DESC";
@@ -33,14 +34,14 @@ $values = array();
 
 if (!empty($search)) {
     if (is_numeric($search)) {
-        $where[] = "dsmz_acc = ?";
-        $values = array(intval($search));
-    } elseif (preg_match("/^ACC-\d$/", $search)) {
-        $where[] = "dsmz_acc = ?";
+        $where[] = "cell_id = ? OR cellline LIKE ?";
+        $values = array(intval($search), $search);
+    } elseif (preg_match("/^ACC-\d+$/", $search)) {
+        $where[] = "cell_id = ?";
         $values = array(str_replace('ACC-', '', $search));
     } else {
         $where[] = "cellline LIKE ?";
-        $values = array($search);
+        $values = array("%" . $search . "%");
     }
 }
 
@@ -89,13 +90,13 @@ $cells = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 <div class="content">
-    <a href="<?= ROOTPATH ?>/documentation#cell-lines" class="btn btn-secondary float-lg-right"><i class="fal fa-lg fa-book mr-5"></i> Help</a>
+    <a href="<?= ROOTPATH ?>/documentation#cell-lines" class="btn btn-help float-lg-right"><i class="far fa-lg fa-book mr-5"></i> Help</a>
     <h1 class="d-flex"><img src="<?= ROOTPATH ?>/img/mutz.png" alt="" class="img-icon mr-10"> Cell lines</h1>
 
     <div>
         <form action="" method="get" class="d-inline-block w-500 mw-full">
             <!-- Input group with appended button -->
-            <label for="search">Search by cell line or DSMZ ACC:</label>
+            <label for="search">Search by cell line (synonyms not included) or DSMZ ACC:</label>
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search" name="search" value="<?= $search ?>">
                 <div class="input-group-append">
@@ -157,6 +158,7 @@ $cells = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th><i class="fas fa-external-link"></i> DSMZ
                         <?php sortbuttons("acc"); ?>
                     </th>
+                    <!-- <th>Virus diagnostic</th> -->
                     <th>RNA-seq</th>
                     <!-- <th>LL-100</th> -->
                 </tr>
@@ -168,12 +170,18 @@ $cells = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= $cell['cell_type'] ?></td>
                     <td><?= $cell['species'] ?></td>
                     <td>
-                        <a href="https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $cell['dsmz_acc'] ?>" target="_blank" rel="noopener noreferrer">ACC-<?= $cell['dsmz_acc'] ?></a>
+                        <?php if (!empty($cell['dsmz_acc'])) { ?>
+                            <a href="https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $cell['dsmz_acc'] ?>" target="_blank" rel="noopener noreferrer">ACC-<?= $cell['dsmz_acc'] ?></a>
+                        <?php } else { ?>
+                            not available
+                        <?php }  ?>
+
                     </td>
+                    <!-- <td>todo</td> -->
 
                     <td>
                         <?php if (!empty($cell['rna_seq'])) { ?>
-                            <a class="badge" href="<?= ROOTPATH ?>/rna/<?= $cell['rna_seq'] ?>"> <?= project_name($cell['rna_seq']) ?></a>
+                            <a class="badge text-white" href="<?= ROOTPATH ?>/rna/<?= $cell['rna_seq'] ?>/bar?samples=<?= $cell['tumour_short'] ?>" style="background-color:<?= $colors[$cell['tumour_short'] ?? ''] ?>"> <?= project_name($cell['rna_seq']) ?></a>
                         <?php } ?>
 
                     </td>

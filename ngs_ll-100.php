@@ -14,7 +14,7 @@
                         </p>
                         <a href="<?= ROOTPATH ?>/rna/ll-100/bar" class="btn btn-primary mt-10"><i class="fas fa-chart-column"></i> Bar chart</a>
                         <a href="<?= ROOTPATH ?>/rna/ll-100/heat" class="btn btn-success mt-10 text-white"><i class="fas fa-table-cells-large"></i> Heat map</a>
-                        <a href="<?= ROOTPATH ?>/documentation#rna-seq" class="btn btn-help"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+                        <a href="<?= ROOTPATH ?>/documentation#rna-seq" class="btn btn-help"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
                 </div>
 

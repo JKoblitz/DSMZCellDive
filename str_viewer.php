@@ -20,10 +20,8 @@ $str_count = $stmt->fetch(PDO::FETCH_COLUMN);
 
 
 <div class="content">
-    <a href="<?= ROOTPATH ?>/documentation#str" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
-
+    <a href="<?= ROOTPATH ?>/documentation#str" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
     <h1>STR Profile Viewer</h1>
-
 </div>
 
 <div class="row card-deck">
@@ -31,60 +29,60 @@ $str_count = $stmt->fetch(PDO::FETCH_COLUMN);
 
         <div class="card" id="meta-form">
             <h2 class="card-title">Metadata</h2>
-            <div class="card-content" >
+            <div class="card-content">
 
-            <table class="table table-sm w-auto" id="META-input">
-                <tbody>
-                    <tr>
-                        <td>Cell line</td>
-                        <td>
-                            <?php if (!empty($meta['cell_id'])) { ?>
-                                <a href='<?= ROOTPATH ?>/cellline/<?= $meta['cell_id'] ?>'><?= $meta['cellline'] ?></a>
-                            <?php } else {
-                                echo $meta['cellline'];
-                            } ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>ACC</td>
-                        <td>
-                            <?php if (is_numeric($meta['cell_id'])) { ?>
-                                <a href='https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $meta['ACC'] ?>' target='_blank' rel='noopener noreferrer'>ACC-<?= $meta['ACC'] ?></a>
-                            <?php } else {
-                                echo  $meta['ACC'];
-                            } ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Date</td>
-                        <td><?= format_date($meta['date']) ?></td>
-                    </tr>
-                    <tr>
-                        <td>Gender</td>
-                        <td><?= $meta['gender'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>EBV</td>
-                        <td><?= $meta['EBV'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>largeT</td>
-                        <td><?= $meta['largeT'] ?></td>
-                    </tr>
-                    <tr>
-                        <td>MMR</td>
-                        <td><?= $meta['MMR'] ?></td>
-                    </tr>
-                </tbody>
-            </table>
+                <table class="table table-sm w-auto" id="META-input">
+                    <tbody>
+                        <tr>
+                            <td>Cell line</td>
+                            <td>
+                                <?php if (!empty($meta['cell_id'])) { ?>
+                                    <a href='<?= ROOTPATH ?>/cellline/ACC-<?= $meta['cell_id'] ?>'><?= $meta['cellline'] ?></a>
+                                <?php } else {
+                                    echo $meta['cellline'];
+                                } ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>ACC</td>
+                            <td>
+                                <?php if (is_numeric($meta['cell_id'])) { ?>
+                                    <a href='https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $meta['ACC'] ?>' target='_blank' rel='noopener noreferrer'>ACC-<?= $meta['ACC'] ?></a>
+                                <?php } else {
+                                    echo  $meta['ACC'];
+                                } ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td><?= format_date($meta['date']) ?></td>
+                        </tr>
+                        <!-- <tr>
+                            <td>Gender</td>
+                            <td><?= $meta['gender'] ?></td>
+                        </tr> -->
+                        <!-- <tr>
+                            <td>EBV</td>
+                            <td><?= $meta['EBV'] ?></td>
+                        </tr>
+                        <tr>
+                            <td>largeT</td>
+                            <td><?= $meta['largeT'] ?></td>
+                        </tr> -->
+                        <tr>
+                            <td>MMR</td>
+                            <td><?= $meta['MMR'] ?></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) { ?>
 
-<div>
+                <div>
                     <a href="<?= ROOTPATH ?>/str/edit/<?= $str_id ?>" class="btn btn-primary mt-20"><i class="fas fa-edit"></i> Edit</a>
 
-</div>
+                </div>
             <?php } ?>
 
         </div>
@@ -117,11 +115,12 @@ $str_count = $stmt->fetch(PDO::FETCH_COLUMN);
                     <?php } ?>
                 </table>
 
-                
+
             </div>
-<div>
+            <div>
                 <a href="<?= ROOTPATH ?>/str/search?str_id=<?= $str_id ?>" class="btn btn-primary mt-20"><i class="fas fa-search"></i> STR Search</a>
 
-</div>        </div>
+            </div>
+        </div>
     </div>
 </div>

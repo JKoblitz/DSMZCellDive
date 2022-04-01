@@ -91,7 +91,7 @@ sort($loci);
 
 
 <div class="content">
-<a href="<?= ROOTPATH ?>/documentation#hla" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+<a href="<?= ROOTPATH ?>/documentation#hla" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
     <h1>HLA Typing Browser</h1>
 

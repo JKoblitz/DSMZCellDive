@@ -29,16 +29,21 @@ var layout = {
     },
     // paper_bgcolor: 'transparent',
     // plot_bgcolor: 'transparent',
-    // legend: {
-    //     orientation: 'h',
-    //     y: 500,
-    //     // xanchor: 'center'
-    // },
-    // height: 500,
+    legend: {
+        // orientation: 'h',
+        // xanchor: 'center',
+        // x: 0,
+        // y: 0
+        title: {text: 'Cell lines'},
+        // font: {size: 10},
+        // x: 1
+    },
+    height: 620,
     margin: {
         t: 25,
-        r: 0,
-        l: 60
+        r: 10,
+        l: 60,
+        b:120
     },
     // modebar: {
     //     orientation: 'v'
@@ -243,11 +248,14 @@ function getData(genes, groups = null, celllines = null, matrix = 'norm', multig
                 if (genes.length === 1) {
                     layout.xaxis.type = 'category'
                     layout.xaxis.automargin = false;
+                    layout.title = genes[0];
                 } else {
                     layout.xaxis.type = 'multicategory'
                     layout.xaxis.automargin = true;
                 }
-                var colorscheme = colors()
+                // var colorscheme = colors()
+            var colorscheme = response.colors;
+            console.log(colorscheme);
                 bardata = []
                 for (const group in data) {
 
@@ -263,7 +271,7 @@ function getData(genes, groups = null, celllines = null, matrix = 'norm', multig
                         name: group,
                         type: 'bar',
                         marker: {
-                            color: colorscheme(tumours.indexOf(group))
+                            color: colorscheme[group]
                         }
                     })
 
@@ -351,7 +359,12 @@ function onlyUnique(value, index, self) {
 
 function updateTable(data, genes = []) {
     var matrix = $('#matrix').val()
-    var multigenes = $("input[name='multigene']:checked").val();
+    var multigenes = $("input[name='multigene']:checked").val()
+    var decimals = 3
+    if ($('#matrix').val() == "counts"){
+        decimals = 0
+    }
+    console.log(data);
     // if (!gene.includes(';')){
     //     multigene = "no"
     // }
@@ -380,31 +393,34 @@ function updateTable(data, genes = []) {
 
     var tbody = $('<tbody>')
 
-    for (const n in data) {
+    for (const dn in data) {
 
-        const group = data[n];
+        const group = data[dn];
 
         if (genes.length === 1) {
             for (let i = 0; i < group.y.length; i++) {
                 var tr = $('<tr>')
                 const cellline = group.x[i];
                 const value = group.y[i];
-                tr.append("<td>" + cellline + "</td>")
+                tr.append("<td><a href='"+ROOTPATH+"/cellline/"+cellline+"' target='_blank'>" + cellline + "</a></td>")
                 tr.append("<td>" + group.name + "</td>")
-                tr.append("<td>" + value.toFixed(2) + "</td>")
+                tr.append("<td class='text-right'>" + value.toFixed(decimals) + "</td>")
                 tbody.append(tr)
             }
         } else {
             const n = genes.length;
-            for (let i = 0; i < (group.y.length / n); i++) {
+            const m = group.y.length / n;
+            for (let i = 0; i < (m); i++) {
                 var tr = $('<tr>')
-
-                const cellline = group.x[i_group][i * n];
-                const values = group.y.slice(i * n, i * n + n);
-                tr.append("<td>" + cellline + "</td>")
+                const cellline = group.x[i_group][i];
+                // const values = group.y.slice(i * n, i * n + n);
+                // const cellline = group.x[i_group][i * n];
+                // const values = group.y.slice(i * n, i * n + n);
+                tr.append("<td><a href='"+ROOTPATH+"/cellline/"+cellline+"' target='_blank'>" + cellline + "</a></td>")
                 tr.append("<td>" + group.name + "</td>")
-                values.forEach(value => {
-                    tr.append("<td>" + value.toFixed(3) + "</td>")
+                genes.forEach((gene, g) => {
+                    var val = group.y[(i+g*m)];
+                    tr.append("<td class='text-right'>" + val.toFixed(decimals) + "</td>")
                 });
                 tbody.append(tr)
             }

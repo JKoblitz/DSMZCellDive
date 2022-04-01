@@ -1,25 +1,8 @@
 <?php
 
-if (is_numeric($cellline)) {
-    $stmt = $db->prepare("SELECT *
-    FROM celllines WHERE cell_id = ?
-    ");
-    $stmt->execute([$cellline]);
-    $cell = $stmt->fetch(PDO::FETCH_ASSOC);
-} elseif (substr($cellline, 0, 4) === "ACC-" && is_numeric(str_replace('ACC-', '', $cellline))) {
-    $stmt = $db->prepare("SELECT *
-    FROM celllines WHERE dsmz_acc = ?
-    ");
-    $stmt->execute([str_replace('ACC-', '', $cellline)]);
-    $cell = $stmt->fetch(PDO::FETCH_ASSOC);
-} else {
-    $stmt = $db->prepare("SELECT *
-    FROM celllines WHERE cellline LIKE ?
-    ");
-    $stmt->execute([$cellline]);
-    $cell = $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
+include BASEPATH . "/php/bioschema.php"; 
+$json = schema_cellline($cell);
+print_schema($json);
 
 if (empty($cell)) {
     echo "Cell line does not exist! Go back to the <a href='" . ROOTPATH . "/celllines'>list of cell lines</a> and try again.";
@@ -47,30 +30,40 @@ $stmt = $db->prepare("SELECT `isotype`, GROUP_CONCAT(`hla` SEPARATOR ', ')
     ");
 $stmt->execute([$cell['cell_id']]);
 $hla = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
 ?>
 
 <div class="content">
-    <a href="<?= ROOTPATH ?>/documentation#cell-line" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+    <a href="<?= ROOTPATH ?>/documentation#cell-line" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
     <h1 class="d-flex"><img src="<?= ROOTPATH ?>/img/mutz.png" alt="" class="img-icon mr-10"> <?= $cell['cellline'] ?></h1>
 
-    <p><b>DSMZ:</b> <a href="https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $cell['dsmz_acc'] ?>" target="_blank" rel="noopener noreferrer">ACC-<?= $cell['dsmz_acc'] ?></a></p>
+    <p>
+        <?php if (!empty($cell['dsmz_acc'])) { ?>
+            <b>DSMZ:</b> <a href="https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $cell['dsmz_acc'] ?>" target="_blank" rel="noopener noreferrer">ACC-<?= $cell['dsmz_acc'] ?></a>
+        <?php } else { ?>
+            <b>DSMZ:</b> not available
+            <?php }  ?>
+    </p>
     <p>
         <b>Species:</b>
         <em><?= $cell['species_scientific'] ?></em>
+        <?php if (!empty($cell['species'])) { ?>
         (<?= $cell['species'] ?>)
+        <?php } ?>
+        
     </p>
     <p>
         <b>Cell type:</b>
         <?= $cell['cell_type'] ?>
     </p>
     <?php if (!empty($cell['medium'])) {
-        $repl = array(
-            "[" => "<sup>",
-            "]" => "</sup>",
-            "{" => "<sub>",
-            "}" => "</sub>"
-        );
+        // $repl = array(
+        //     "[" => "<sup>",
+        //     "]" => "</sup>",
+        //     "{" => "<sub>",
+        //     "}" => "</sub>"
+        // );
         $medium = $cell['medium'];
     ?>
         <p>
@@ -80,16 +73,48 @@ $hla = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     <?php } ?>
 
     <?php if (!empty($cell['morphology'])) {
-        $morph = explode(';', $cell['morphology'])[0];
+        
     ?>
         <p>
             <b>Morphology:</b>
-            <?= $morph ?>
+            <?= $cell['morphology'] ?>
         </p>
     <?php
     } ?>
 
 </div>
+
+<?php if (!empty($cell['rna_seq'])) { ?>
+    <div class="card">
+        <a href="<?= ROOTPATH ?>/documentation#rna-seq" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+
+        <h3 class="card-title">
+            <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
+            <b>Transcriptome data:</b> <?= project_name($cell['rna_seq']) ?>
+        </h3>
+
+        <div>
+            <div class="project-chart" id="project-rna-hist"></div>
+            <button class="btn btn-primary my-5" onclick="$(this).hide();chartRNA();">
+                <i class="fad fa-fw fa-chart-column"></i> Histogram of normalised expression
+            </button>
+            <br>
+            <div class="project-chart" id="project-rna-bar"></div>
+            <button class="btn btn-primary my-5" onclick="$(this).hide();barchartRNA();">
+                <i class="fad fa-fw fa-chart-column"></i> Normalised expression of all genes
+            </button>
+            <br>
+
+
+
+        </div>
+        <a href="<?= ROOTPATH ?>/rna/<?= $cell['rna_seq'] ?>" class="btn mt-5"><i class="fas fa-fw fa-right"></i> <?= project_name($cell['rna_seq']) ?> overview page</a>
+
+    </div>
+
+<?php } ?>
+
+
 
 <?php if (!empty($str_id)) {
 
@@ -103,10 +128,9 @@ $hla = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
                 ");
     $stmt->execute([$str_id]);
     $str_count = $stmt->fetch(PDO::FETCH_COLUMN);
-
 ?>
     <div class="card">
-    <a href="<?= ROOTPATH ?>/documentation#str" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+        <a href="<?= ROOTPATH ?>/documentation#str" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
         <h3 class="card-title">
             <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
@@ -144,27 +168,27 @@ $hla = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     $text = str_replace('<table>', '<table class="table">', $text);
 ?>
     <div class="card">
-        <a href="<?= ROOTPATH ?>/documentation#coi" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+        <a href="<?= ROOTPATH ?>/documentation#coi" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
         <h3 class="card-title">
-        <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
-COI DNA Barcoding Report
-</h3>
+            <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
+            COI DNA Barcoding Report
+        </h3>
         <div class="parsedown">
             <?= $text ?>
         </div>
     </div>
 <?php } ?>
 
-    <?php if (!empty($hla)) { ?>
+<?php if (!empty($hla)) { ?>
 
-<div class="card">
-<a href="<?= ROOTPATH ?>/documentation#hla" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+    <div class="card">
+        <a href="<?= ROOTPATH ?>/documentation#hla" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
-    <h3 class="card-title">
-        <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
-        HLA Typing
-    </h3>
+        <h3 class="card-title">
+            <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
+            HLA Typing
+        </h3>
         <table class="table table-sm w-auto">
             <thead>
                 <tr>
@@ -187,52 +211,9 @@ COI DNA Barcoding Report
             <?php } ?>
         </table>
 
-</div>
-
-    <?php } ?>
-<div class="content">
-<a href="<?= ROOTPATH ?>/documentation#rna-seq" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
-
-    <h3>
-        RNA-seq project
-    </h3>
-</div>
-
-<?php if (empty($cell['rna_seq'])) { ?>
-    <div class="card">
-        <p>This cell line is currently not part of any project.</p>
     </div>
-<?php } else {
-
-?>
-    <div class="card">
-<h3 class="card-title">
-            <a class="mr-10" href="#" onclick="$(this).parent().next().toggle();$(this).children().toggleClass('fa-arrows-to-line')"><i class="fas fa-arrows-to-line fa-arrows-from-line"></i></a>
-            <?= project_name($cell['rna_seq']) ?>
-        </h3>
-
-<div>
-        <div class="project-chart" id="project-rna-hist"></div>
-        <button class="btn btn-primary my-5" onclick="$(this).hide();chartRNA();">
-            <i class="fad fa-fw fa-chart-column"></i> Histogram of normalised expression
-        </button>
-        <br>
-        <div class="project-chart" id="project-rna-bar"></div>
-        <button class="btn btn-primary my-5" onclick="$(this).hide();barchartRNA();">
-            <i class="fad fa-fw fa-chart-column"></i> Normalised expression of all genes
-        </button>
-        <br>
-
-
-       
-</div>
- <a href="<?= ROOTPATH ?>/rna/<?= $cell['rna_seq'] ?>" class="btn mt-5"><i class="fas fa-fw fa-right"></i> <?= project_name($cell['rna_seq']) ?> overview page</a>
-
-          </div>
 
 <?php } ?>
-
-
 
 <script>
     const CELL = '<?= $cell['cell_id'] ?>';

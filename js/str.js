@@ -109,6 +109,10 @@ function cleanForm() {
     $('#STR-input').find('input,select').val('')
 }
 
+function divideStrings(input){
+    
+}
+
 function validateText() {
     cleanForm();
     var header = $('#str-header').val()
@@ -125,8 +129,9 @@ function validateText() {
         })
         return;
     }
-    header = header.split(/\s/)
-    values = values.split(/\s/)
+    header = header.trim().split(/\s{1,4}/)
+    values = values.trim().split(/\s{1,4}/)
+    console.log(header, values);
 
     if (header.length !== values.length) {
         // console.log("ERROR, header and values must have the same length!");

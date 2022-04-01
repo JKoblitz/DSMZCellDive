@@ -1,6 +1,6 @@
 <div class="content">
     <h2>
-        The DSMZ Cell Line Diversity Analysis Tool
+    DSMZ Tools for Diving into Cell Line Data
     </h2>
 
     <p class="text-muted font-size-16">

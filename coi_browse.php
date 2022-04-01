@@ -31,14 +31,14 @@ if ($order == 'type') $orderby .= ", medium_base";
 $filterby = "";
 if (!empty($search)) {
     if (is_numeric($search)) {
-        $filterby = "WHERE (`dsmz_acc` = ?)";
+        $filterby = "WHERE (`cell_id` = ?)";
         array_push($values, $search);
     } elseif (substr($search, 0, 4) === "ACC-" && is_numeric(str_replace('ACC-', '', $search))) {
-        $filterby = "WHERE (`dsmz_acc` = ?)";
+        $filterby = "WHERE (`cell_id` = ?)";
         array_push($values, str_replace('ACC-', '', $search));
     } else {
         $filterby = "WHERE (`cellline` LIKE ?)";
-        array_push($values, '%'.$search.'%');
+        array_push($values, '%' . $search . '%');
     }
 }
 
@@ -142,8 +142,8 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="content">
 
-    <a href="<?= ROOTPATH ?>/documentation#coi" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
-    <h1>COI DNA Browser</h1>
+    <a href="<?= ROOTPATH ?>/documentation#coi" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+    <h1>COI mtDNA Sequence Browser</h1>
 
     <form action="" method="get" class=" w-600 mw-full d-inline-block mb-5 mr-5">
         <?php
@@ -156,7 +156,7 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </form>
-    
+
 </div>
 
 <div class="content">
@@ -169,28 +169,30 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <thead>
                     <tr>
+                        <th>Report</th>
                         <th>Cell line
-                        <?php sortbuttons("cellline"); ?>
+                            <?php sortbuttons("cellline"); ?>
                         </th>
                         <th>Species
-                        <?php sortbuttons("species"); ?>
+                            <?php sortbuttons("species"); ?>
 
                         </th>
                         <th>Cell type
-                        <?php sortbuttons("celltype"); ?></th>
-                        <th>View COI Species Report</th>
+                            <?php sortbuttons("celltype"); ?></th>
+                        <!-- <th>View COI Species Report</th> -->
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($meta as $row) {
                     ?>
                         <tr id="cell-<?= $row["coi_id"] ?>">
+                            <td>
+                                <a href="<?= ROOTPATH ?>/coi/view/<?= $row['cell_id'] ?>" class="btn btn-sm"><i class="fas fa-search"></i></a>
+                            </td>
                             <td><a href="<?= ROOTPATH ?>/cellline/<?= $row['cellline'] ?>"><?= $row['cellline'] ?></a></td>
                             <td><?= $row['species'] ?></td>
                             <td><?= $row['cell_type'] ?></td>
-                            <td>
-                                <a href="<?=ROOTPATH?>/coi/view/<?=$row['cell_id']?>" class="btn btn-sm"><i class="fas fa-search"></i></a>
-                            </td>
+
                         </tr>
                     <?php } ?>
 

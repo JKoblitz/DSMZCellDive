@@ -73,7 +73,7 @@ if ($plottype === 'heat') { ?>
         <div class="alert bg-light-lm mb-10">
             <!-- <a href="<?= ROOTPATH ?>/rna/<?= $project ?>/<?= $plottype == 'heat' ? 'bar' : 'heat' ?>" class="btn mb-10"><?= $plottype == 'heat' ? 'Bar Chart' : 'Heatmap' ?></a> -->
             <!-- <form class="well" role="complementary"> -->
-            <a href="<?= ROOTPATH ?>/documentation#rna-seq" class="btn btn-help float-right btn-sm"><i class="fal fa-lg fa-book mr-5"></i></a>
+            <a href="<?= ROOTPATH ?>/documentation#rna-seq" class="btn btn-help float-right btn-sm"><i class="far fa-lg fa-book mr-5"></i></a>
 
             <h5 class="alert-heading">Data selection</h5>
 
@@ -115,7 +115,7 @@ if ($plottype === 'heat') { ?>
                 <div class="form-group">
                     <label for="select-by">Select samples by</label>
                     <select id="select-by" class="form-control" name="color" onchange="ui_selectby(this)" autocomplete="off">
-                        <option value="groups" <?= $selectby == 'groups' ? 'selected' : '' ?>>Tumour groups</option>
+                        <option value="groups" <?= $selectby == 'groups' ? 'selected' : '' ?>>Tumour entity</option>
                         <option value="celllines" <?= $selectby == 'celllines' ? 'selected' : '' ?>>Cell lines</option>
                     </select>
                 </div>
@@ -192,7 +192,7 @@ if ($plottype === 'heat') { ?>
 
         </div>
         <?php if ($plottype !== 'heat') { ?>
-            <div class="alert  bg-light-lm">
+            <!-- <div class="alert  bg-light-lm">
                 <h5 class="alert-heading">Appearance</h5>
                 <div class="form-group">
                     <label for="group-color">Color palette</label>
@@ -220,7 +220,7 @@ if ($plottype === 'heat') { ?>
                     <?php } ?>
 
                 </div>
-            </div>
+            </div> -->
         <?php } ?>
     </div>
     <div class="col-md-9">

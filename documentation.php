@@ -187,7 +187,7 @@
                         <p>
                             Heat maps can be clustered by genes (default) or cell lines. Clustering can also be disabled (none).
                             The order of the genes is identical to the selection unless they are clustered. On top of the heat map is a color
-                            legend indicating the tumour group. Hover over the labels to get more information.
+                            legend indicating the tumour entity. Hover over the labels to get more information.
                         </p>
                     </div>
                 </div>
@@ -241,7 +241,12 @@
                 The similarity score is calculated as stated <a href="https://doi.org/10.11418/jtca1981.18.4_329" target="_blank" rel="noopener noreferrer">by Tanabe et al</a>:
             </p>
 
-            <img src="<?=ROOTPATH?>/img/docs/eq_tanabe.png" alt="2 times shared alleles divided by the sum of alleles from the query and reference" class="img-fluid">
+            <img src="<?=ROOTPATH?>/img/docs/eq_tanabe.png" alt="2 times shared alleles divided by the sum of alleles from the query and reference" class="img-fluid" width="300px">
+
+            <p>
+            <b id="meaning-of-str-score">Authentic or not authentic, a cruical question</b>: STR profiling is the recommended approach for authentication testing of human cell lines. To improve its effectiveness, however, a method by which STR can account for genetic drift arising from the passage of malignant cells is needed. Algorithms based on a set of match criteria, seventeen  STR loci, and amelogenin analysis were found to successfully discriminate between related and unrelated samples. The criteria (100 to 80&nbsp;% match = authentic)  used here are intended to make the interpretation of STR profile search results more visible. Therefore, results highlighted in green are usually authentic as long as the cells do not carry a deficiency in DNA mismatch repair (MMR). Results highlighted in yellow indicate a distant relationship when there is a drift of STR alleles in MMR-negative cell lines. Clearly incorrect cell lines are present when the background is red.
+            </p>
+            <p>Read more about this topic <a href="https://doi.org/10.1002/ijc.27931" target="_blank" rel="noopener noreferrer">here</a>.</p>
         </section>
 
         <hr>
@@ -281,6 +286,13 @@
                 Protein expression was not determined.
             </p>
 
+            <figure>
+                
+            <img src="<?=ROOTPATH?>/img/hla_nomenclature.png" alt="HLA" class="img-fluid"><br>
+            <caption>
+                Nomenclature based on Xie et al., 2010. 
+            </caption>
+            </figure>
 
             <a href="<?= ROOTPATH ?>/hla" class="btn btn-primary"><i class="fas fa-arrow-right mr-10"></i> Browse HLA typing data</a>
         </section>
@@ -288,6 +300,7 @@
         <hr>
         
         <section id="cite">
+            <!-- APA citation style -->
             <h2>
                 How to cite
                 <a href="#cite" class="ml-5 text-decoration-none text-secondary"><i class="fas fa-hashtag"></i></a>
@@ -297,24 +310,31 @@
 
             <h4 id="cite-celldive">
                 <i class="fad fa-fw fa-browser text-secondary"></i> 
-                Cite DSMZCellDive
+                DSMZCellDive
             </h4>
             <p>
-                Koblitz J., Dirks, W.G., Eberth, S. et al. DSMZCellDive: Diving into high-throughput cell line data. <em>F1000Research</em> (2022), <a target="_blank" href="https://doi.org/">DOI: </a> 
+                <!-- Koblitz J., Dirks, W.G., Eberth, S. et al. DSMZCellDive: Diving into high-throughput cell line data. <em>F1000Research</em> (2022), <a target="_blank" href="https://doi.org/">DOI: </a>  -->
+                Manuscript in preparation
             </p>
 
             <h4 id="cite-data">
                 <i class="fad fa-fw fa-file-chart-line text-secondary"></i> 
-                Cite the data publications
+                The presented data
             </h4>
             <p>
                 <b>LL-100 RNA-seq data</b><br>
-                Quentmeier, H., Pommerenke, C., Dirks, W.G. et al. The LL-100 panel: 100 cell lines for blood cancer studies. <em>Sci Rep</em> 9, 8218 (2019). <a target="_blank" href="https://doi.org/10.1038/s41598-019-44491-x">DOI: 10.1038/s41598-019-44491-x</a>
+                Quentmeier, H., Pommerenke, C., Dirks, W. G., Eberth, S., Koeppel, M., MacLeod, R., Nagel, S., Steube, K., Uphoff, C. C., & Drexler, H. G. (2019). The LL-100 panel: 100 cell lines for blood cancer studies. <em>Scientific reports</em>, 9(1), 8218. <a target="_blank" href="https://doi.org/10.1038/s41598-019-44491-x">DOI: 10.1038/s41598-019-44491-x</a>
             </p>
             
             <p>
                 <b>STR profiling data</b><br>
-                Dirks, W.G., MacLeod, R.A.F., Nakamura, Y. et al. Cell line cross-contamination initiative: An interactive reference database of STR profiles covering common cancer cell lines. <em>Int. J. Cancer</em>, 126: 303-304 (2010). <a target="_blank" href="https://doi.org/10.1002/ijc.24999">DOI: 10.1002/ijc.24999</a>
+                Dirks, W. G., MacLeod, R. A., Nakamura, Y., Kohara, A., Reid, Y., Milch, H., Drexler, H. G., & Mizusawa, H. (2010). Cell line cross-contamination initiative: an interactive reference database of STR profiles covering common cancer cell lines. <em>International journal of cancer</em>, 126(1), 303–304. <a target="_blank" href="https://doi.org/10.1002/ijc.24999">DOI: 10.1002/ijc.24999</a>
+
+            </p>
+            <p>
+                <b>STR authentication and similarity score</b><br>
+                Capes-Davis, A., Reid, Y. A., Kline, M. C., Storts, D. R., Strauss, E., Dirks, W. G., Drexler, H. G., MacLeod, R. A., Sykes, G., Kohara, A., Nakamura, Y., Elmore, E., Nims, R. W., Alston-Roberts, C., Barallon, R., Los, G. V., Nardone, R. M., Price, P. J., Steuer, A., Thomson, J., … Kerrigan, L. (2013). Match criteria for human cell line authentication: where do we draw the line?. <em> International journal of cancer</em>, 132(11), 2510–2519. <a target="_blank" href="https://doi.org/10.1002/ijc.27931">DOI: 10.1002/ijc.27931</a>
+
             </p>
         </section>
 

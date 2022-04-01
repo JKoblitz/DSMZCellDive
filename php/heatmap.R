@@ -9,7 +9,7 @@ library(RColorBrewer)
 ## Input Simulation parameters
 args = commandArgs(TRUE)
 #args = c('Rscript', '--vanilla', '2736', 'row')
-#id = "6248"
+#id = "5472"
 id = args[length(args)-1]
 dendro = args[length(args)]
 
@@ -45,25 +45,73 @@ n = max(c(3,N))
 #         cols = brewer.pal(n, 'Dark2')[1:N]
 # }
 
-makeColorScale <- function(ncolors, palette = "Dark2") {
-        paletteinfo <- RColorBrewer::brewer.pal.info
-        if (ncolors > paletteinfo[palette, "maxcolors"]) {
-                cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
-        } else if (ncolors < 3) {
-                cols <- RColorBrewer::brewer.pal(3, palette)[1:2]
-                cols[1:ncolors]
-        } else {
-                cols <- RColorBrewer::brewer.pal(ncolors, palette)
-        }
-        cols
-}
+# makeColorScale <- function(ncolors, palette = "Dark2") {
+#         paletteinfo <- RColorBrewer::brewer.pal.info
+#         if (ncolors > paletteinfo[palette, "maxcolors"]) {
+#                 cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
+#         } else if (ncolors < 3) {
+#                 cols <- RColorBrewer::brewer.pal(3, palette)[1:2]
+#                 cols[1:ncolors]
+#         } else {
+#                 cols <- RColorBrewer::brewer.pal(ncolors, palette)
+#         }
+#         cols
+# }
+# 
+# cols = makeColorScale(n)
 
-cols = makeColorScale(n)
-
-names(cols) = groups.unique
+#names(cols) = groups.unique
 #anno_cols = list(group=cols)
 #tumour_group <- as.numeric(as.factor(groupnames))
 
+cols2 = c(
+        "#1b9e77",
+        "#578951",
+        "#93752c",
+        "#d06107",
+        "#bd6332",
+        "#9d696a",
+        "#7e6ea2",
+        "#8e5fa9",
+        "#b3499c",
+        "#d7328f",
+        "#cf3f76",
+        "#a66753",
+        "#7d8f31",
+        "#77a61a",
+        "#c8a908",
+        "#e0a604",
+        "#cb950d",
+        "#b78415",
+        "#a37520",
+        "#8e7037",
+        "#666666",
+        "#a0a811",
+        "#7a6b4e")
+
+names(cols2) = c("ALCL",
+                "AML_ery",
+                "AML_mega",
+                "AML_mono",
+                "AML_myelo",
+                "BL_B-ALL",
+                "CML_lympho_BC",
+                "CML_myelo_BC",
+                "DLBCL_ABC",
+                "DLBCL_GCB",
+                "HCL",
+                "HL",
+                "mature_T",
+                "MCL",
+                "MM_PCL",
+                "MPN",
+                "NK",
+                "B-LCL",
+                "PEL",
+                "CLL_PLL",
+                "PMBL",
+                "pre-B-ALL",
+                "T-ALL_TLL")
 # colorscale = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100)
 
 outputfile <- paste("temp/heatmap_", id, ".html", sep = '')
@@ -90,8 +138,8 @@ p <- heatmaply(mat_num,
         #limits = c(-2, 2),
         scale_fill_gradient_fun = ggplot2::scale_fill_gradient2(low='#2166ac',mid='white',high='#b2182b', midpoint = 0),
         #col_side_colors = as.factor(groupnames), #hier brauche ich die Farben
-        col_side_colors = data.frame("Tumour group" = as.factor(groupnames), check.names=FALSE),
-        col_side_palette = cols#,
+        col_side_colors = data.frame("Tumour entity" = as.factor(groupnames), check.names=FALSE),
+        col_side_palette = cols2#,
         #plot_method = "plotly"
         )
 p.widget <- as_widget(p)

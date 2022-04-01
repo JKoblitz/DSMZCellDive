@@ -2,15 +2,10 @@
 
 session_start();
 
-if ($_SERVER['SERVER_NAME'] == 'testserver' || $_SERVER['SERVER_NAME'] == 'localhost') {
-  define('ROOTPATH', '/celldive2');
-} elseif ($_SERVER['SERVER_NAME'] == '172.18.251.4' || $_SERVER['SERVER_NAME'] == 'bacmedia.dsmz.local') {
-  define('ROOTPATH', '');
-} else {
-  define('ROOTPATH', '');
-}
-
+define('ROOTPATH', '');
+define('INSIGHT', true);
 define('BASEPATH', $_SERVER['DOCUMENT_ROOT'] . ROOTPATH);
+
 include_once BASEPATH . "/php/Route.php";
 
 Route::add('/', function () {
@@ -112,10 +107,29 @@ Route::add('/celllines', function () {
 
 Route::add('/cellline/(.*)', function ($cellline) {
   include BASEPATH . "/php/_db.php";
+  $cellline = urldecode($cellline);
   $breadcrumb = [
     ['name' => "Cell lines",  'path' => '/celllines'],
     ['name' => $cellline]
   ];
+
+  if (substr($cellline, 0, 4) === "ACC-" && is_numeric(str_replace('ACC-', '', $cellline))) {
+    $stmt = $db->prepare("SELECT *
+  FROM celllines WHERE cell_id = ?
+  ");
+    $stmt->execute([str_replace('ACC-', '', $cellline)]);
+    $cell = $stmt->fetch(PDO::FETCH_ASSOC);
+  } else {
+    $stmt = $db->prepare("SELECT *
+  FROM celllines WHERE cellline LIKE ?
+  ");
+    $stmt->execute([$cellline]);
+    $cell = $stmt->fetch(PDO::FETCH_ASSOC);
+  }
+
+  if (empty($cell)) {
+    header("Location: " . ROOTPATH . "/celllines?msg=cellline-does-not-exist");
+  }
 
   include BASEPATH . "/php/Parsedown.php";
   include BASEPATH . "/php/_config.php";
@@ -211,7 +225,7 @@ Route::add('/(coi)', function ($project) {
 Route::add('/(coi)/browse', function ($project) {
   $breadcrumb = [
     ['name' => "COI DNA Barcoding (animal)", 'path' => '/coi'],
-    ['name' => "COI DNA Browser"]
+    ['name' => "COI mtDNA Sequence Browser"]
   ];
   $pagename = 'browse';
   include BASEPATH . "/php/_db.php";
@@ -233,7 +247,7 @@ Route::add('/(coi)/view/(\d+)', function ($project, $cell_id) {
 
   $breadcrumb = [
     ['name' => "COI DNA Barcoding (animal)", 'path' => '/coi'],
-    ['name' => "COI DNA Browser", 'path' => '/coi/browse'],
+    ['name' => "COI mtDNA Sequence Browser", 'path' => '/coi/browse'],
     ['name' => "Species Report for " . $coi['cellline']]
   ];
 
@@ -291,7 +305,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     ];
     include BASEPATH . "/php/_db.php";
 
-    $stmt = $db->prepare("SELECT str_id,cell_id,created,reference,ACC,cellline,lot,lot_2,`date`,date_2,date_animal_pcr,M,R,CH,SH,notes,gender,EBV,largeT,MMR,highlight FROM str_meta WHERE str_id = ?");
+    $stmt = $db->prepare("SELECT str_id,cell_id,created,reference,`source`,ACC,cellline,lot,lot_2,`date`,date_2,date_animal_pcr,M,R,CH,SH,notes,gender,EBV,largeT,MMR,highlight FROM str_meta WHERE str_id = ?");
     $stmt->execute([$str_id]);
     $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
     if (empty($meta)) {
@@ -302,46 +316,98 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     include BASEPATH . "/footer.php";
   });
 
-
   Route::add('/(str)/(edit-meta|edit-profile|delete|add)/(\d+)', function ($project, $action, $str_id) {
     $breadcrumb = [
       ['name' => "Short Tandem Repeats (human)", 'path' => '/str'],
       ['name' => "STR Profile Editor"]
     ];
     include BASEPATH . "/php/_db.php";
-
-
     include BASEPATH . "/php/str_crud.php";
+  }, 'post');
+
+
+  Route::add('/(str)/(import)', function ($project, $pagename) {
+    $breadcrumb = [
+      ['name' => "Short Tandem Repeats (human)", 'path' => '/str'],
+      ['name' => "STR", 'path' => '/str/browse'],
+      ['name' => "Import profiles"]
+    ];
+    include BASEPATH . "/header.php";
+    include BASEPATH . "/str_upload.php";
+    include BASEPATH . "/footer.php";
+  });
+
+  Route::add('/(str)/(import)', function ($project, $pagename) {
+    $breadcrumb = [
+      ['name' => "Short Tandem Repeats (human)", 'path' => '/str'],
+      ['name' => "STR", 'path' => '/str/browse'],
+      ['name' => "Import profiles"]
+    ];
+    include BASEPATH . "/php/_db.php";
+
+    $stmt = $db->query("SELECT MAX(update_id) FROM str_meta");
+    $update_id = $stmt->fetch(PDO::FETCH_COLUMN);
+    $update_id++;
+
+    include BASEPATH . "/header.php";
+    include BASEPATH . "/str_upload.php";
+    include BASEPATH . "/footer.php";
+  }, 'post');
+
+  Route::add('/(str)/import-confirm', function ($project) {
+    $breadcrumb = [
+      ['name' => "Short Tandem Repeats (human)", 'path' => '/str'],
+      ['name' => "STR", 'path' => '/str/browse'],
+      ['name' => "Import profiles"]
+    ];
+    include BASEPATH . "/php/_db.php";
+    include_once BASEPATH . "/php/str_file.php";
+
+    $update_id = $_POST['update_id'];
+    $targetPath = BASEPATH . '/uploads/upload_' . $update_id . '.csv';
+    $result = read_str($targetPath);
+
+    foreach ($result['data'] as $data) {
+      $meta = $data['meta'];
+      $profile = $data['profile'];
+
+      $columns = array();
+      $values = array();
+      foreach ($meta as $key => $value) {
+        $columns[] = "`$key`";
+        $values[] = $value;
+      }
+      $sql = "INSERT INTO str_meta 
+                    (`update_id`, " . implode(',', $columns) . ") 
+                    VALUES ('$update_id', " . implode(',', array_fill(0, count($columns), '?')) . ")";
+
+      $stmt = $db->prepare($sql);
+      $stmt->execute($values);
+      $str_id = $db->lastInsertId();
+
+      foreach ($profile as $p) {
+        $locus = $p[0];
+        $allele = $p[1];
+        $value = $p[2];
+        // var_dump([$str_id, $locus, $allele, $value, $value]);
+        $stmt = $db->prepare(
+          "INSERT INTO str_profile 
+          (str_id, locus, allele, `value`, `value_str`) 
+          VALUES (?,?,?,?,?)"
+        );
+        $stmt->execute([$str_id, $locus, $allele, $value, $value]);
+      }
+    }
+    header("Location: " . ROOTPATH . "/str/browse?upload=$update_id");
   }, 'post');
 } else {
 
   Route::add('/user/login', function () {
-    $page = "userlogin";
-
-    include BASEPATH . "/php/_login.php";
-    $ip = getIPAddress();
-    if ($_SERVER['SERVER_NAME'] != 'testserver' && substr($ip, 0, 10) !== "172.18.242") {
-      // $_SERVER['REMOTE_ADDR']
-      header("Location: " . ROOTPATH . "/?msg=no-access");
-    } else {
-      include BASEPATH . "/header.php";
-      include BASEPATH . "/userlogin.php";
-      include BASEPATH . "/footer.php";
-    }
+    // omitted for official repository
   }, "get");
 
   Route::add('/user/login', function () {
-    $page = "userlogin";
-    include BASEPATH . "/php/_login.php";
-    // include BASEPATH . "/php/_login.php";
-    if (verifyUser() === true) {
-      header("Location: " . ROOTPATH . "/?welcome");
-    } else {
-      include BASEPATH . "/header.php";
-      include BASEPATH . "/userlogin.php";
-      echo 'Username unknown or password wrong.';
-      include BASEPATH . "/footer.php";
-    }
+    // omitted for official repository
   }, "post");
 }
 
@@ -356,11 +422,7 @@ Route::add('/error/([0-9]*)', function ($error) {
 
 // Add a 404 not found route
 Route::pathNotFound(function ($path) {
-  // Do not forget to send a status header back to the client
-  // The router will not send any headers by default
-  // So you will have the full flexibility to handle this case
-  // header('HTTP/1.0 404 Not Found');
-  http_response_code(404);
+  header('HTTP/1.0 404 Not Found');
   $error = 404;
   // header('HTTP/1.0 404 Not Found');
   include BASEPATH . "/header.php";
@@ -372,9 +434,6 @@ Route::pathNotFound(function ($path) {
 
 // Add a 405 method not allowed route
 Route::methodNotAllowed(function ($path, $method) {
-  // Do not forget to send a status header back to the client
-  // The router will not send any headers by default
-  // So you will have the full flexibility to handle this case
   header('HTTP/1.0 405 Method Not Allowed');
   $error = 405;
   include BASEPATH . "/header.php";

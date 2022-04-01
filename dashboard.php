@@ -3,7 +3,7 @@
         <div class="alert alert-primary filled-dm">
             <b class="font-size-16">Cell lines</b>
             <div class="font-size-24">
-                <a class="text-muted-dm" href="<?= ROOTPATH ?>/celllines">897</a>
+                <a class="text-muted-dm" href="<?= ROOTPATH ?>/celllines">922</a>
             </div>
 
             <form action="<?= ROOTPATH ?>/celllines" method="get">
@@ -53,7 +53,7 @@
                 <a class="text-muted-dm" href="<?= ROOTPATH ?>/coi/browse">197</a>
             </div>
             <div class="_text-right">
-                <a href="<?= ROOTPATH ?>/coi/browse" class="btn bg-white-dm text-primary-dm btn-block"><i class="far fa-fw fa-lg fa-barcode"></i> COI DNA Browser</a>
+                <a href="<?= ROOTPATH ?>/coi/browse" class="btn bg-white-dm text-primary-dm btn-block"><i class="far fa-fw fa-lg fa-barcode"></i> COI mtDNA Sequence Browser</a>
             </div>
         </div>
     </div>

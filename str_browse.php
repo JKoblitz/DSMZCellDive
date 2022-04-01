@@ -57,24 +57,25 @@ $filterby = "WHERE `reference` = 1 ";
 if ($editor) {
     $filterby = "WHERE 1 ";
 }
-
 if (!empty($search)) {
     if ($search == 'highlight') {
-        $filterby .= "AND `highlight` = 1";
+        $filterby .= " AND `highlight` = 1";
     } elseif ($search == 'reference') {
-        $filterby .= "AND `reference` = 1";
+        $filterby .= " AND `reference` = 1";
+    } elseif ($search == 'reference') {
+        $filterby .= " AND `reference` = 0";
+    } elseif (preg_match("/^ACC-\d+$/", $search)) {
+        $filterby .= " AND cell_id = ?";
+        array_push($values, str_replace('ACC-', '', $search));
     } else {
-        $filterby .= "AND (`cellline` LIKE ? OR `ACC` LIKE ?)";
-        array_push($values, $search, $search);
+        $filterby .= " AND (`cellline` LIKE ? OR `ACC` LIKE ?)";
+        array_push($values, "%".$search."%", "%".$search."%");
     }
 }
 
-// if (isset($_GET['filter'])){
-//     $filter = isset($_GET['filter']);
-//     if ($filter == 'gender'){
-
-//     }
-// }
+if (isset($_GET['upload'])){
+    $filterby .= " AND `update_id` = ". intval($_GET['upload']);
+}
 
 $limit =  $_GET["limit"] ?? 10;
 $p = $_GET["p"] ?? 1;
@@ -174,11 +175,11 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </style>
 
 <div class="content">
-<a href="<?= ROOTPATH ?>/documentation#str" class="btn btn-help float-right"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+<a href="<?= ROOTPATH ?>/documentation#str" class="btn btn-help float-right"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
     <h1>STR Profile Browser</h1>
 
-    <form action="" method="get" class=" w-600 mw-full d-inline-block mb-5 mr-5">
+    <form action="" method="get" class=" w-400 mw-full d-inline-block mb-5 mr-5">
         <?php
         hiddenFieldsFromGet(['search']);
         ?>
@@ -190,6 +191,19 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </form>
     <?php if ($editor) {
+        ?>
+    <form action="" method="get" class=" w-150 mw-full d-inline-block mb-5 mr-5">
+    <?php
+    hiddenFieldsFromGet(['upload']);
+    ?>
+    <div class="input-group" id="upload-bar">
+        <input type="text" class="form-control" placeholder="upload ID" name="upload" value="<?= $_GET['upload'] ?? '' ?>">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+</form>
+<?php
         if ($search == 'highlight') { ?>
             <a href="<?= ROOTPATH ?>/str/browse<?= currentGET(['search']) ?>" class="btn highlight active" data-toggle="tooltip" data-title="Remove this filter">
                 <i class="fas fa-highlighter-line"></i>
@@ -210,6 +224,16 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <i class="fas fa-asterisk"></i>
             </a>
     <?php }
+    if ($search == 'internal') { ?>
+        <a href="<?= ROOTPATH ?>/str/browse<?= currentGET(['search']) ?>" class="btn btn-danger active" data-toggle="tooltip" data-title="Remove this filter">
+            <i class="fas fa-key"></i>
+        </a>
+    <?php
+    } else { ?>
+        <a href="<?= ROOTPATH ?>/str/browse<?= currentGET([], ['search' => 'internal']) ?>" class="btn" data-toggle="tooltip" data-title="Show internal profiles only">
+            <i class="fas fa-key-skeleton"></i>
+        </a>
+<?php }
     } ?>
 
 
@@ -231,9 +255,6 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <th>Cell line</th>
                         <!-- <th class="fake">Cell line</th> -->
                         <th>Source</th>
-                        <!-- <th>Lot</th> -->
-                        <!-- <th>Date</th> -->
-                        <th>Gender</th>
                         <th>MMR</th>
                         <th class="headcol right"></th>
                     </tr>
@@ -243,11 +264,11 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     ?>
                         <tr class="<?= ($editor && $row['highlight'] == 1 ? 'highlight' : '') ?>">
                             <?php if ($editor) { ?>
-                                <td><?= ($row['reference'] == 1) ? '<i class="fas fa-asterisk" title="reference"></i>' : '' ?></td>
+                                <td><?= ($row['reference'] == 1) ? '<i class="fas fa-asterisk" title="reference"></i>' : '<i class="fas fa-key-skeleton text-danger" title="internal"></i>' ?></td>
                             <?php } ?>
-                            <th class="<?= ($row['reference'] == 0 ? 'text-danger' : '') ?>">
+                            <th>
                                 <?php if (!empty($row['cell_id'])) { ?>
-                                    <a href='<?= ROOTPATH ?>/cellline/<?= $row['cell_id'] ?>'><?= $row['cellline'] ?></a>
+                                    <a href='<?= ROOTPATH ?>/cellline/ACC-<?= $row['cell_id'] ?>'><?= $row['cellline'] ?></a>
                                 <?php } else {
                                     echo $row['cellline'];
                                 } ?>
@@ -256,16 +277,13 @@ $meta = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <?= $row['cellline'] ?>
                             </th> -->
                             <td class="mw-150">
-                                <?php if (is_numeric($row['ACC'])) { ?>
-                                    DSMZ:
+                                <?=($row['source']) ? $row['source'].": " : ""?>
+                                <?php if ($row['source'] == "DSMZ") { ?>
                                     <a href='https://www.dsmz.de/collection/catalogue/details/culture/ACC-<?= $row['ACC'] ?>' target='_blank' rel='noopener noreferrer'>ACC-<?= $row['ACC'] ?></a>
                                 <?php } else {
                                     echo  $row['ACC'];
                                 } ?>
                             </td>
-                            <!-- <td><?= $row['lot'] ?></td> -->
-                            <!-- <td><?= $row['date'] ?></td> -->
-                            <td><?= $row['gender'] ?></td>
                             <td><?= $row['MMR'] ?></td>
 
                             <td class="right">

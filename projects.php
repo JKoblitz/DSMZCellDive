@@ -75,7 +75,7 @@
             </div>
             <div class="m-20">
                 <a href="<?= ROOTPATH ?>/coi" class="btn btn-primary mb-5"><i class="fas fa-search"></i> Read more</a>
-                <a href="<?= ROOTPATH ?>/coi/browse" class="btn"><i class="fas fa-barcode"></i> COI DNA Browser</a>
+                <a href="<?= ROOTPATH ?>/coi/browse" class="btn"><i class="fas fa-barcode"></i> COI mtDNA Sequence Browser</a>
             </div>
         </div>
     </div>

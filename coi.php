@@ -19,7 +19,7 @@
                         We offer a collection of COI DNA Barcodes and scientific reports for all animal cell lines from the DSMZ.
                     </p>
                     <a href="<?= ROOTPATH ?>/coi/browse" class="btn btn-primary mt-10">COI DNA Barcoding Browser</a>
-                    <a href="<?= ROOTPATH ?>/documentation#coi" class="btn btn-help"><i class="fal fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
+                    <a href="<?= ROOTPATH ?>/documentation#coi" class="btn btn-help"><i class="far fa-lg fa-book mr-5"></i> <span class="d-none d-md-inline">Help</span></a>
 
             </div>
 

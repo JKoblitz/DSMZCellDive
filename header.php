@@ -8,8 +8,9 @@ $pagetitle = implode(' | ', array_reverse($pagetitle));
 
 
 if (!function_exists('str_contains')) {
-    function str_contains($haystack, $needle) {
-        return $needle !== '' && mb_strpos($haystack, $needle) !== false;
+    function str_contains($haystack, $needle)
+    {
+        return $needle !== '' && strpos($haystack, $needle) !== false;
     }
 }
 
@@ -57,6 +58,32 @@ if (!function_exists('str_contains')) {
         <script>
             const MESSAGE = '<?= str_replace('-', ' ', htmlspecialchars($_GET['msg'])) ?>';
         </script>
+    <?php } ?>
+
+
+    <?php if (INSIGHT) { ?>
+        <!-- Matomo -->
+        <script>
+            var _paq = window._paq = window._paq || [];
+            /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+                var u = "https://piwik.dsmz.de/";
+                _paq.push(['setTrackerUrl', u + 'matomo.php']);
+                _paq.push(['setSiteId', '14']);
+                var d = document,
+                    g = d.createElement('script'),
+                    s = d.getElementsByTagName('script')[0];
+                g.async = true;
+                g.src = u + 'matomo.js';
+                s.parentNode.insertBefore(g, s);
+            })();
+        </script>
+        <noscript>
+            <p><img src="https://piwik.dsmz.de/matomo.php?idsite=14&amp;rec=1" style="border:0;" alt="" /></p>
+        </noscript>
+        <!-- End Matomo Code -->
     <?php } ?>
 
 </head>
@@ -110,47 +137,47 @@ if (!function_exists('str_contains')) {
             </div>
         </div>
     </div> -->
-    
 
-<div class="modal" id="text-input" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <a href="#" class="close" role="button" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </a>
-      <h5 class="modal-title">Text input</h5>
-      <p class="text-muted">
-          Here you can copy and paste the header of your file, e.g. Excel, and the respective values. 
-          Columns must be separated by tabs or spaces.
-          The header must include loci and alleles, separated by an underscore. 
-          If no allele is given, it is assumed to be the first allele. Example: <code class="code">D13S317_2</code>
-      </p>
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td>Your marker ordering</td>
-                    <td><textarea id="str-header" class="form-control" name="header" rows="3" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td>Your marker values</td>
-                    <td><textarea id="str-values" class="form-control" name="values" rows="3" cols="100" required></textarea></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="text-right mt-20">
-            <button class="btn btn-primary" type="button" onclick="validateText();"><i class="fas fa-chevron-right"></i> Translate</button>
-            <button class="btn" type="button" onclick="exampleText();"><i class="fas fa-question"></i> Example</button>
+
+    <div class="modal" id="text-input" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <a href="#" class="close" role="button" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </a>
+                <h5 class="modal-title">Text input</h5>
+                <p class="text-muted">
+                    Here you can copy and paste the header of your file, e.g. Excel, and the respective values.
+                    Columns must be separated by tabs or spaces.
+                    The header must include loci and alleles, separated by an underscore.
+                    If no allele is given, it is assumed to be the first allele. Example: <code class="code">D13S317_2</code>
+                </p>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Your marker ordering</td>
+                            <td><textarea id="str-header" class="form-control" name="header" rows="3" cols="100"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td>Your marker values</td>
+                            <td><textarea id="str-values" class="form-control" name="values" rows="3" cols="100" required></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-right mt-20">
+                    <button class="btn btn-primary" type="button" onclick="validateText();"><i class="fas fa-chevron-right"></i> Translate</button>
+                    <button class="btn" type="button" onclick="exampleText();"><i class="fas fa-question"></i> Example</button>
+                </div>
+            </div>
         </div>
     </div>
-  </div>
-</div>
 
 
     <!-- Page wrapper start -->
     <div class="page-wrapper with-sidebar with-navbar" data-sidebar-type="full-height overlayed-sm-and-down">
 
         <div class="sticky-alerts"></div>
- 
+
         <!-- Navbar start -->
         <nav class="navbar">
 
@@ -201,12 +228,12 @@ if (!function_exists('str_contains')) {
                     <span class="text-danger font-weight-bold position-absolute font-size-16" style="bottom: -.5rem; left: 7.3rem">BETA</span>
                 </a>
                 <!-- <div class="sidebar-content">
-                    <form action="<?=ROOTPATH?>/celllines" method="get">
+                    <form action="<?= ROOTPATH ?>/celllines" method="get">
                     <input type="text" class="form-control" placeholder="Search cell line" name="search">
                 </form> </div>-->
                 <br>
                 <!-- Sidebar links and titles -->
-                <h5 class="sidebar-title">Content</h5>
+                <h5 class="sidebar-title">Content overview</h5>
                 <div class="sidebar-divider"></div>
                 <a href="<?= ROOTPATH ?>/celllines" class="sidebar-link sidebar-link-with-icon <?= str_contains($_SERVER['REQUEST_URI'], '/cellline') ? 'active' : '' ?>">
                     <span class="sidebar-icon">
@@ -281,10 +308,19 @@ if (!function_exists('str_contains')) {
                         <span class="sidebar-icon"><i class="fad fa-table-list"></i></span>
                         STR Profile Browser
                     </a>
-                <?php } ?>
-                    <a class="sidebar-link <?= ($project == 'coi') ? 'active' : '' ?>" href="<?= ROOTPATH ?>/coi">
-                        COI DNA Barcoding (animal)
-                    </a><?php if ($project == 'coi') { ?>
+
+                    <?php
+                    if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) { ?>
+
+                        <a class="sidebar-link sidebar-link-with-icon <?= ($project == 'str' && ($pagename ?? 'browse') == 'import') ? 'active' : '' ?>" href="<?= ROOTPATH ?>/str/import">
+                            <span class="sidebar-icon"><i class="fad fa-upload"></i></span>
+                            Import CSV file
+                        </a>
+                <?php }
+                } ?>
+                <a class="sidebar-link <?= ($project == 'coi') ? 'active' : '' ?>" href="<?= ROOTPATH ?>/coi">
+                    COI DNA Barcoding (animal)
+                </a><?php if ($project == 'coi') { ?>
                     <a class="sidebar-link sidebar-link-with-icon <?= ($project == 'coi' && ($pagename ?? 'browse') == 'browse') ? 'active' : '' ?>" href="<?= ROOTPATH ?>/coi/browse">
                         <span class="sidebar-icon"><i class="fad fa-table-list"></i></span>
                         COI Browser
@@ -295,7 +331,7 @@ if (!function_exists('str_contains')) {
                 <h5 class="sidebar-title">Other data</h5>
                 <div class="sidebar-divider"></div>
                 <a href="<?= ROOTPATH ?>/hla" class="sidebar-link <?= str_contains($_SERVER['REQUEST_URI'], '/hla') ? 'active' : '' ?>">HLA Typing</a>
-               <br>
+                <br>
                 <h5 class="sidebar-title">About</h5>
                 <div class="sidebar-divider"></div>
                 <a href="<?= ROOTPATH ?>/documentation" class="sidebar-link <?= str_contains($_SERVER['REQUEST_URI'], '/documentation') ? 'active' : '' ?>">
